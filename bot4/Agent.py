@@ -8,33 +8,24 @@ from basic import run_action, wait_req
 class BotAgent:
 
     def __init__(self, tag_poses, intri, disto) -> None:
-        self.cameraSetup()
         self.dec = AprilLib.TagDetect(tag_poses, intri, disto)
         self.pathNodes = []
         self.pos = (0,0,0)
         self.angle = 0
 
-    def cameraSetup(self):
-        self.headCam = cv2.VideoCapture(0)
-        self.chestCam = cv2.VideoCapture(2)
-        pass
-
-    def cameraCleanUp(self):
-        self.headCam.release()
-        self.chestCam.release()
-        pass
-
     def headCapture(self):
-        self.headCam = cv2.VideoCapture(0)
-        ret, frame = self.headCam.read()
-        self.headCam.release()
+        headCam = cv2.VideoCapture(0)
+        ret, frame = headCam.read()
+        headCam.release()
         if ret:
             return frame
         else:
             return None
 
     def chestCapture(self):
-        ret, frame = self.chestCam.read()
+        chestCam = cv2.VideoCapture(2)
+        ret, frame = chestCam.read()
+        chestCam.release()
         if ret:
             return frame
         else:
