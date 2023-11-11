@@ -25,7 +25,9 @@ class BotAgent:
         pass
 
     def headCapture(self):
+        self.headCam = cv2.VideoCapture(0)
         ret, frame = self.headCam.read()
+        self.headCam.release()
         if ret:
             return frame
         else:
