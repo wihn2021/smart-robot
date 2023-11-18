@@ -110,3 +110,7 @@ def load_tag_pos():
         centers.append(center)
 
     return tag_poses, centers
+
+if __name__ == "__main__":
+    a,b = load_tag_pos()
+    print(a['16'])

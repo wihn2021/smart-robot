@@ -22,8 +22,8 @@ def plot_map(tag_poses):
 def create_grid_map(obstacles):
     grid_map = np.ones((30, 30))
     for ob in obstacles:
-        obx = round(ob[0]/10)
-        oby = round(ob[1]/10)
+        obx = int(ob[0]/10+0.5)
+        oby = int(ob[1]/10+0.5)
         #grid_map[obx,oby] = 0
         for i in range(obx - 1, obx + 2):
             for j in range(oby - 1, oby + 2):
@@ -57,4 +57,4 @@ def grid_2_pixel(x,y):
     return x*10+5,y*10+5
 
 def pixel_2_grid(x,y):
-    return round(x/10), round(y/10)
+    return int(x/10+0.5), int(y/10+0.5)

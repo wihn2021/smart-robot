@@ -9,7 +9,7 @@ def run_action(cmd):
     cnt_err = 0
     while 1:
         test_read = ser.read()
-        print('test_read', test_read)
+        #print('test_read', test_read)
         cnt_err += 1
         if test_read== b'\xa3' or cnt_err == 50:
             break
@@ -17,9 +17,9 @@ def run_action(cmd):
     if cnt_err == 50:
         print('can not get REQ')
     else:
-        print('read REQ finished!')
+        #print('read REQ finished!')
         ser.write(cmd2data(cmd))
-        print('send action ok!')
+        #print('send action ok!')
     ser.close()
 
 def crc_calculate(package):
@@ -46,6 +46,6 @@ def wait_req():
     while 1:
         test_read=ser.read()
         if test_read== b'\xa3' :
-            print('read REQ finished!') 
+            #print('read REQ finished!') 
             break
         
