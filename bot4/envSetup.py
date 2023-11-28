@@ -32,8 +32,28 @@ def load_tag_pos():
             ])
         return a + n
     
+    def expand_5(n, op):
+        if op == "+x":
+            a = np.array([
+                [-14.6, 0, -4.5], [-8.6, 0, -4.5], [-8.6, 0, -14.8], [-14.6, 0, -14.8]
+            ])
+        if op == "-x":
+            a = np.array([
+                [14.6, 0, -4.5], [8.6, 0, -4.5], [8.6, 0, -14.8], [14.6, 0, -14.8]
+            ])
+        if op == "+y":
+            a = np.array([
+                [0 ,-14.6, -4.5], [0, -8.6, -4.5], [0, -8.6, -14.8], [0, -14.6, -14.8]
+            ])
+        if op == "-y":
+            a = np.array([
+                [0 ,14.6, -4.5], [0, 8.6, -4.5], [0, 8.6, -14.8], [0, 14.6, -14.8]
+            ])
+        return a+n
+    
     tag_poses = {}
     centers = []
+    screens = [None] * 37
     tag_poses['37'] = expand([166, 287])
     tag_poses['38'] = expand([231.3, 287.5])
     tag_poses['39'] = expand([9.5, 250])
@@ -95,21 +115,26 @@ def load_tag_pos():
         for j in range(1,5):
             l.append(tag_poses[str(i*4+j)])
         center = np.mean(l, axis=0)
-        for index,p in enumerate(l):
+        for index, p in enumerate(l):
             if p[0] > center[0]:
                 if p[1] > center[1]:
-                    t = expand_4(p,'+y')
+                    t = expand_4(p, '+y')
+                    t2 = expand_5(p, '+y')
                 else:
-                    t = expand_4(p,'+x')
+                    t = expand_4(p, '+x')
+                    t2 = expand_5(p, '+x')
             else:
                 if p[1] > center[1]:
-                    t = expand_4(p,'-x')
+                    t = expand_4(p, '-x')
+                    t2 = expand_5(p, '-x')
                 else:
-                    t = expand_4(p,'-y')
+                    t = expand_4(p, '-y')
+                    t2 = expand_5(p, '-y')
             tag_poses[str(i*4+index+1)] = t
+            screens[i*4+index+1] = t2
         centers.append(center)
 
-    return tag_poses, centers
+    return tag_poses, centers, screens
 
 if __name__ == "__main__":
     a,b = load_tag_pos()

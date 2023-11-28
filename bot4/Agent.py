@@ -14,7 +14,7 @@ class BotAgent:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler("bot.log")
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
@@ -44,19 +44,19 @@ class BotAgent:
             return None
 
     def BasicGoForward(self,d):
-        steps = (d + 4) // 8
-        while steps>=8:
-            run_action(f'fastForward0{4}')
+        self.logger.info(f"go {d}")
+        steps = (d + 8) // 20
+        if steps>=8:
+            run_action(f'fastForward07')
             wait_req()
-            steps -= 4
+            return
         if steps>=3 and steps <=7:
-            run_action(f'fastForward0{steps}')
+            run_action('fastForward04')
             wait_req()
             return
         if steps >= 1:
             run_action('Forwalk02')
             wait_req()
-            return
         if steps == 2:
             run_action('Forwalk02')
             wait_req()
@@ -78,6 +78,10 @@ class BotAgent:
             run_action("turn003L")
             wait_req()
             return
+        if shouldRotate > 0:
+            run_action("turn001L")
+            wait_req()
+            return
         if shouldRotate <= -50:
             #右转
             run_action("turn010R")
@@ -89,6 +93,10 @@ class BotAgent:
             return
         if shouldRotate <= -15:
             run_action("turn003R")
+            wait_req()
+            return
+        if shouldRotate <= 0:
+            run_action("turn001R")
             wait_req()
             return
         pass
@@ -107,12 +115,30 @@ class BotAgent:
         ang += bias
         if ang > 180:
             ang -= 360
+        if ang < -180:
+            ang += 360
+        if np.linalg.norm(self.pos[:2] - pos[:2]) > 30:
+            self.logger.warn("Position error too much")
+            pic = self.headCapture()
+            tags = self.dec.detect(pic)
+            bias = 0
+            if len(tags) == 0:
+                self.BasicHeadTurn()
+                pic = self.headCapture()
+                self.HeadTurnBack()
+                tags = self.dec.detect(pic)
+                bias = -90
+            pos,ang = self.dec.solvePos(tags)
+            ang += bias
+            if ang > 180:
+                ang -= 360
+            if ang < -180:
+                ang += 360
         self.pos = pos
         self.angle = ang
         self.logger.info(f"Current Position: {pos}, angle: {ang}")
         return pos, ang
         # return position and angle
-        pass
         
     def BasicHeadTurn(self):
         run_action("HeadTurn180")
@@ -130,15 +156,20 @@ class BotAgent:
         t = []
         for n in self.pathNodes:
             t.append(mapSetup.grid_2_pixel(n[0],n[1]))
-        self.pathNodes = t
+        self.pathNodes = t[1:]
         self.logger.info(f"Path planned: {t}")
 
     def ContinueMyPath(self):
         nowPos, nowAng = self.getPosition()
         dist = np.linalg.norm(nowPos[:2] - self.pathNodes[0])
-        if dist < 14:
+        self.logger.info(f"dist = {dist}")
+        if dist < 20:
             self.pathNodes.pop(0)
         self.RotateToPos(self.pathNodes[0][0], self.pathNodes[0][1])
+        dist = np.linalg.norm(self.pos[:2] - self.pathNodes[0])
+        if dist < 20:
+            self.pathNodes.pop(0)
+            return
         self.BasicGoForward(dist)
         pass
 
@@ -147,20 +178,28 @@ class BotAgent:
         
         delta_x = x - self.pos[0]
         delta_y = y - self.pos[1]
-        Should_rot = (-np.arctan2(delta_x, delta_y) *180 /np.pi - self.angle)
-        self.logger.info(f"destination: ({x}, {y}) dx: {delta_x} dy: {delta_y} should rotate: {Should_rot}")
+        Should_rot = (np.arctan2(delta_y, delta_x) *180 /np.pi - self.angle)
+        self.logger.info(f"destination: ({x}, {y}) dx: {delta_x} dy: {delta_y} should rotate to: {np.arctan2(delta_y, delta_x) *180 /np.pi} should rotate: {Should_rot}")
         if Should_rot > 180:
             Should_rot -= 360
         if Should_rot < -180:
             Should_rot += 360
-        while np.abs(Should_rot) > 10: 
+        if np.abs(Should_rot) <= 15:
+            return
+        while np.abs(Should_rot) > 15: 
             self.BasicTurn(Should_rot)
             _ ,_ = self.getPosition()
-            Should_rot = (-np.arctan2(delta_x, delta_y) *180 /np.pi - self.angle)
+            delta_x = x - self.pos[0]
+            delta_y = y - self.pos[1]
+            dist = np.linalg.norm(self.pos[:2] - self.pathNodes[0])
+            if dist < 20:
+                return
+            Should_rot = (np.arctan2(delta_y, delta_x) *180 /np.pi - self.angle)
             if Should_rot > 180:
                 Should_rot -= 360
             if Should_rot < -180:
                 Should_rot += 360
+            self.logger.info(f"destination: ({x}, {y}) dx: {delta_x} dy: {delta_y} should rotate to: {np.arctan2(delta_y, delta_x) *180 /np.pi} should rotate: {Should_rot}")
         pass
 
 

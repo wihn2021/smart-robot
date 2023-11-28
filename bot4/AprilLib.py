@@ -30,11 +30,15 @@ class TagDetect:
         for tag in tags:
             _, rvec, tvec = cv2.solvePnP(self.tagStandard[str(tag.tag_id)], tag.corners, self.intrinsic, self.distortion)
             rotation_matrix, _ = cv2.Rodrigues(rvec)
-            worldPos = np.matmul(-np.linalg.inv(rotation_matrix),tvec)
-            euAng = np.degrees(np.arctan2(rotation_matrix[1,0],rotation_matrix[0,0]))
+            #euAng = cv2.RQDecomp3x3(rotation_matrix)[0]
+            rot_camera_to_world = rotation_matrix.T
+            worldPos = np.matmul(-rotation_matrix.T,tvec)
+            #euAng = np.degrees(np.arctan2(rotation_matrix[1,0],rotation_matrix[0,0]))
             pos_solutions.append(worldPos)
-            if euAng < 0:
-                euAng += 360
+            head_direction_camera = np.array([0, 0, 1]).reshape((3, 1))
+            direction_vector = rot_camera_to_world @ head_direction_camera
+            robot_direction = np.arctan2(direction_vector[1], direction_vector[0]) * 180 / np.pi
+            euAng = (robot_direction + 360) % 360
             ang_solutions.append(euAng)
             self.logger.debug(f"tag{tag.tag_id} position: {worldPos} angle: {euAng}")
         avgPos = np.mean(pos_solutions,axis=0).flatten()

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-GridSize = 10
+GridSize = 6
 
 def plot_map(tag_poses):
     fig, ax = plt.subplots()
@@ -20,14 +20,14 @@ def plot_map(tag_poses):
 
 
 def create_grid_map(obstacles):
-    grid_map = np.ones((30, 30))
+    grid_map = np.ones((50, 50))
     for ob in obstacles:
-        obx = int(ob[0]/10+0.5)
-        oby = int(ob[1]/10+0.5)
+        obx = int(ob[0]/6+0.5)
+        oby = int(ob[1]/6+0.5)
         #grid_map[obx,oby] = 0
-        for i in range(obx - 1, obx + 2):
-            for j in range(oby - 1, oby + 2):
-                if i >= 0 and i < 30 and j >= 0 and j < 30:
+        for i in range(obx - 3, obx + 4):
+            for j in range(oby - 3, oby + 4):
+                if i >= 0 and i < 50 and j >= 0 and j < 50:
                     grid_map[i, j] = 0
     return grid_map
 
@@ -54,7 +54,7 @@ def plot_path_on_map(grid_map, path):
     plt.show()
 
 def grid_2_pixel(x,y):
-    return x*10+5,y*10+5
+    return x*6+3,y*6+3
 
 def pixel_2_grid(x,y):
-    return int(x/10+0.5), int(y/10+0.5)
+    return int(x/6+0.5), int(y/6+0.5)
