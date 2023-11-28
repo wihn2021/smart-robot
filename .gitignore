@@ -1,1 +1,6 @@
 venv
+data
+get*
+*.pyc
+.gitignore
+*.pkl
