@@ -54,20 +54,33 @@ class myDataSet(data.Dataset):
             # self.image.append(np.array(Image.open(self.data_path+str(i)+'.jpeg').convert('RGB')))
                 for i, c in enumerate(FlowerClasses):
                     ClassDir = f"../bot4/data/train/{c}"
+                    #print(ClassDir)
                     for root, dirs, files in os.walk(ClassDir):
-                        print(f"add {ClassDir}{files[-1]} to test")
-                        self.image.append(Image.open(f"{ClassDir}/{files[-1]}").convert('RGB'))
-                        self.label.append(i)
+                        print(root)
+                        for file in files[:]:
+                            print(f"add {ClassDir}/{file} to train")
+                            self.image.append(Image.open(f"{ClassDir}/{file}").convert('RGB'))
+                            self.label.append(i)
+
+                for i, c in enumerate(FlowerClasses):
+                    ClassDir = f"../bot4/data/enhanced_train/{c}"
+                    #print(ClassDir)
+                    for root, dirs, files in os.walk(ClassDir):
+                        print(root)
+                        for file in files[-10:]:
+                            print(f"add {ClassDir}/{file} to train")
+                            self.image.append(Image.open(f"{ClassDir}/{file}").convert('RGB'))
+                            self.label.append(i)
             else:
                 #for j in list(range(50, 71)) + list(range(30, 40)) + list(range(99 , 120)):
                 #    self.image.append(Image.open('{}/class{}/{}.jpg'.format(self.data_path, i+1, j)).convert('RGB'))
                 #    self.label.append(i)     
                 for i, c in enumerate(FlowerClasses):
-                    ClassDir = f"../bot4/data/train/{c}"
+                    ClassDir = f"../bot4/data/enhanced_train/{c}"
                     #print(ClassDir)
                     for root, dirs, files in os.walk(ClassDir):
                         print(root)
-                        for file in files[:-1]:
+                        for file in files[:-10]:
                             print(f"add {ClassDir}/{file} to train")
                             self.image.append(Image.open(f"{ClassDir}/{file}").convert('RGB'))
                             self.label.append(i)
@@ -170,6 +183,9 @@ def my_train(istest, batch_size, lr, epochs):
                 loss = criterion(output, label)
                 val_running_loss += loss.item()
                 acc = (output.argmax(dim=1) == label).float().mean()
+                for iii,t in enumerate(output.argmax(dim=1) != label):
+                    if t:
+                        print(f"{FlowerClasses[label[iii]]} -> {FlowerClasses[output.argmax(dim=1)[iii]]}")
                 val_epoch_accuracy += acc / len(test_loader)
             print('val loss:', val_running_loss/len(test_loader))
             print('val acc:', val_epoch_accuracy.item())

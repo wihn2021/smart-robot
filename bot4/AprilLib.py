@@ -51,7 +51,7 @@ if __name__ == "__main__":
     from envSetup import load_tag_pos
     intrinsic = np.array(([207.3099,0,314.3843],[0,205.0819,239.2206],[0,0,1]),dtype=np.double)
     distortion = np.array([0.1912,-0.0889,0,0],dtype=np.double)
-    tag_poses, obstacle_centers = load_tag_pos()
+    tag_poses, obstacle_centers, screens = load_tag_pos()
     img = cv2.imread('./bot4/sample/3as.jpg')
     td = TagDetect(tag_poses, intrinsic, distortion)
     print(td.detect(img))

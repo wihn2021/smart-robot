@@ -47,7 +47,7 @@ class BotAgent:
         self.logger.info(f"go {d}")
         steps = (d + 8) // 20
         if steps>=8:
-            run_action(f'fastForward07')
+            run_action('fastForward07')
             wait_req()
             return
         if steps>=3 and steps <=7:
@@ -61,7 +61,6 @@ class BotAgent:
             run_action('Forwalk02')
             wait_req()
             return
-        pass
 
     def BasicTurn(self,shouldRotate):
         self.logger.info(f"turn {shouldRotate}")
@@ -99,7 +98,6 @@ class BotAgent:
             run_action("turn001R")
             wait_req()
             return
-        pass
 
     def getPosition(self):
         pic = self.headCapture()
@@ -213,3 +211,4 @@ class BotAgent:
             Should_rot -= 360
         if Should_rot < -180:
             Should_rot += 360
+
