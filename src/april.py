@@ -1,15 +1,15 @@
+from typing import Any, Union
+import apriltag
 import logging
-from communication import Channel
-from action import ActionControl
-from map2 import load_tag_pos
-from classifier import Classifier
-class Agent:
+from numpy import dtype, ndarray
+from cv2.typing import MatLike
+import cv2
+
+class BotDetect:
 
     def __init__(self) -> None:
         self.logger = self.logger_init()
-        self.ch = Channel("192.168.1.254", "team16", "stupidrobot")
-        self.action = ActionControl()
-        self.classifier = Classifier("./overlay/enhanced.bit")
+        self.detector = apriltag.Detector(apriltag.DetectorOptions(families="tag36h11"))
 
     def logger_init(self) -> logging.Logger:
         logger = logging.getLogger(__name__)
@@ -19,3 +19,7 @@ class Agent:
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
         return logger
+
+    def detect(self, img:MatLike) -> Union[tuple[list, ndarray[Any, dtype[Any]]], list]:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return self.detector.detect(gray)

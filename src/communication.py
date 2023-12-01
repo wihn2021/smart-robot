@@ -1,5 +1,6 @@
 from typing import Union
 import requests
+import logging
 
 class Channel:
     """
@@ -15,6 +16,16 @@ class Channel:
         self.host_computer_ip = ip_addr
         self.username = username
         self.password = password
+        self.logger = self.logger_init()
+
+    def logger_init(self) -> logging.Logger:
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler(f"{__name__}.log", mode='w')
+        formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        return logger
 
     def initialize_team(self) -> str:
         """

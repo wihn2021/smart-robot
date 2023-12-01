@@ -8,9 +8,36 @@ import logging
 from cv2.typing import MatLike
 class Classifier:
     """
-    
+    A class that represents a classifier.
+
+    Attributes:
+        overlay (Overlay): The overlay object.
+        xlnk (Xlnk): The Xlnk object.
+        x (np.ndarray): The input array.
+        y (np.ndarray): The output array.
+        input_ch (Channel): The input channel.
+        output_ch (Channel): The output channel.
+        logger (logging.Logger): The logger object.
+
+    Methods:
+        __init__(self, overlay_path: str) -> None: Initializes the Classifier object.
+        logger_init(self) -> logging.Logger: Initializes the logger object.
+        core_classify(self, img_data: np.ndarray[np.float32]) -> np.ndarray: Performs the core classification.
+        wrap_classify(self, img: Union[ArrayLike, MatLike, Image.Image]) -> Union[int, None]: Wraps the classification process.
+
     """
+
     def __init__(self, overlay_path: str) -> None:
+        """
+        Initializes the Classifier object.
+
+        Args:
+            overlay_path (str): The path to the overlay.
+
+        Returns:
+            None
+
+        """
         self.overlay = Overlay(overlay_path)
         self.xlnk = Xlnk()
         self.x = self.xlnk.cma_array(shape=(3,28,28), dtype=np.float32)
@@ -20,9 +47,32 @@ class Classifier:
         self.logger = self.logger_init()
 
     def logger_init(self) -> logging.Logger:
-        pass
+        """
+        Initializes the logger object.
+
+        Returns:
+            logging.Logger: The logger object.
+
+        """
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler(f"{__name__}.log", mode='w')
+        formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        return logger
 
     def core_classify(self, img_data: np.ndarray[np.float32]) -> np.ndarray:
+        """
+        Performs the core classification.
+
+        Args:
+            img_data (np.ndarray[np.float32]): The input image data.
+
+        Returns:
+            np.ndarray: The classification result.
+
+        """
         for i in range(3):
             for j in range(28):
                 for k in range(28):
@@ -35,6 +85,16 @@ class Classifier:
         return result
     
     def wrap_classify(self, img: Union[ArrayLike, MatLike, Image.Image]) -> Union[int, None]:
+        """
+        Wraps the classification process.
+
+        Args:
+            img (Union[ArrayLike, MatLike, Image.Image]): The input image.
+
+        Returns:
+            Union[int, None]: The classification result.
+
+        """
         im_data = np.array(img).astype(np.float32)
         im_data = im_data.reshape(3,28,28).transpose(2,0,1)
         for i in range(im_data.shape[0]):
@@ -42,6 +102,7 @@ class Classifier:
         res = self.core_classify(im_data)
         if res[0] == 0:
             # classification fail
+            self.logger.warn("Classification failed")
             return None
         else:
             return res.argmax()

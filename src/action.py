@@ -56,16 +56,35 @@ def wait_req():
             break
         
 class ActionControl:
-    
+    """
+    Class representing the control of actions for a robot.
+    """
+
     def __init__(self) -> None:
         self.logger = self.logger_init()
 
-
     def logger_init(self) -> logging.Logger:
-        pass
+        """
+        Initialize the logger for logging actions.
 
+        Returns:
+            logging.Logger: The logger object.
+        """
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler(f"{__name__}.log", mode='w')
+        formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        return logger
 
     def head_capture(self) -> Union[MatLike, None]:
+        """
+        Capture an image from the head camera.
+
+        Returns:
+            Union[MatLike, None]: The captured image if successful, None otherwise.
+        """
         headCam = cv2.VideoCapture(0)
         ret, frame = headCam.read()
         headCam.release()
@@ -76,12 +95,24 @@ class ActionControl:
             return None
         
     def run_str(self, command: str) -> None:
-        self.logger.info("run command %s"%(command, ))
+        """
+        Run a command and log the action.
+
+        Args:
+            command (str): The command to run.
+        """
+        self.logger.debug("run command %s"%(command, ))
         run_action(command)
         wait_req()
-        self.logger.info("command done")
+        self.logger.debug("command done")
 
     def basic_go_forward(self, d):
+        """
+        Move the robot forward by a certain distance.
+
+        Args:
+            d: The distance to move forward.
+        """
         self.logger.info(f"go {d}")
         steps = (d + 8) // 20
         if steps >= 8:
@@ -96,6 +127,12 @@ class ActionControl:
             self.run_str('Forwalk02')
 
     def basic_turn(self, shouldRotate:Union[int, float]):
+        """
+        Turn the robot by a certain angle.
+
+        Args:
+            shouldRotate (Union[int, float]): The angle to rotate.
+        """
         self.logger.info(f"turn {shouldRotate}")
         if shouldRotate >= 50:
             # 左转
