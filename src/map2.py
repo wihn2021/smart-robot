@@ -133,6 +133,7 @@ def load_tag_pos():
     tag_poses[33] = expand_2([183, 105])
     tag_poses[34] = expand_2([163, 110])
 
+    tag_ori = [None] * 66
     for i in range(9):
         l = []
         for j in range(1,5):
@@ -143,18 +144,23 @@ def load_tag_pos():
                 if p[1] > center[1]:
                     t = expand_4(p, '+y')
                     t2 = expand_5(p, '+y')
+                    t3 = 0
                 else:
                     t = expand_4(p, '+x')
                     t2 = expand_5(p, '+x')
+                    t3 = 90
             else:
                 if p[1] > center[1]:
                     t = expand_4(p, '-x')
                     t2 = expand_5(p, '-x')
+                    t3 = 90
                 else:
                     t = expand_4(p, '-y')
                     t2 = expand_5(p, '-y')
+                    t3 = 0
             tag_poses[i*4+index+1] = t
             screens[i*4+index+1] = t2
+            tag_ori[i*4+index+1] = t3
         centers.append(center)
 
-    return tag_poses, centers, screens
+    return tag_poses, centers, screens , tag_ori
