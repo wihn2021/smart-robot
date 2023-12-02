@@ -1,11 +1,9 @@
 from pynq import Overlay
 from pynq import Xlnk
 import numpy as np
-from numpy.typing import ArrayLike
 from PIL import Image
-from typing import Union
+from typing import Union, Any
 import logging
-from cv2.typing import MatLike
 from constants import FLOWER_CLASSES
 class Classifier:
     """
@@ -63,7 +61,7 @@ class Classifier:
         logger.addHandler(file_handler)
         return logger
 
-    def core_classify(self, img_data: np.ndarray[np.float32]) -> np.ndarray:
+    def core_classify(self, img_data: np.ndarray) -> np.ndarray:
         """
         Performs the core classification.
 
@@ -85,7 +83,7 @@ class Classifier:
         self.y[:] = 0  # Reset the y array to zeros
         return result
     
-    def wrap_classify(self, img: Union[ArrayLike, MatLike, Image.Image]) -> Union[str, None]:
+    def wrap_classify(self, img: Union[Any, Image.Image]) -> Union[str, None]:
         """
         Wraps the classification process.
 
@@ -106,5 +104,6 @@ class Classifier:
             self.logger.warn("Classification failed")
             return None
         else:
+            self.logger.info(f"{res}")
             return FLOWER_CLASSES[res.argmax()]
         

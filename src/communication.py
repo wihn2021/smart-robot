@@ -57,11 +57,13 @@ class Channel:
         Returns:
             Union[int, None]: The score if the change is successful, None otherwise.
         """
+        self.logger.info(f"change {tag_id} from {from_flower} to {to_flower}")
         response = requests.get(f"http://{self.host_computer_ip}/change/{self.username}/{self.password}/at/{tag_id}/from/{from_flower}/to/{to_flower}",
                                  timeout=3)
         ret, score_text = response.text.split()
         if ret == "Wrong":
             return None
-        self.request_count[tag_id] += 1
+        if ret == "Error":
+            self.request_count[tag_id] += 1
         return int(score_text)
     
