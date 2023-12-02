@@ -158,3 +158,9 @@ class ActionControl:
             return
         if shouldRotate <= 0:
             self.run_str("turn001R")
+
+    def turn_head_left(self):
+        self.run_str("HeadTurn180")
+
+    def turn_head_back(self):
+        self.run_str("HeadTurnMM")

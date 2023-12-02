@@ -6,6 +6,7 @@ from PIL import Image
 from typing import Union
 import logging
 from cv2.typing import MatLike
+from constants import FLOWER_CLASSES
 class Classifier:
     """
     A class that represents a classifier.
@@ -84,7 +85,7 @@ class Classifier:
         self.y[:] = 0  # Reset the y array to zeros
         return result
     
-    def wrap_classify(self, img: Union[ArrayLike, MatLike, Image.Image]) -> Union[int, None]:
+    def wrap_classify(self, img: Union[ArrayLike, MatLike, Image.Image]) -> Union[str, None]:
         """
         Wraps the classification process.
 
@@ -92,7 +93,7 @@ class Classifier:
             img (Union[ArrayLike, MatLike, Image.Image]): The input image.
 
         Returns:
-            Union[int, None]: The classification result.
+            Union[str, None]: The classification result.
 
         """
         im_data = np.array(img).astype(np.float32)
@@ -105,5 +106,5 @@ class Classifier:
             self.logger.warn("Classification failed")
             return None
         else:
-            return res.argmax()
+            return FLOWER_CLASSES[res.argmax()]
         

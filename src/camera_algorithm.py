@@ -34,6 +34,7 @@ def solve_position(
 
     Returns:
         Tuple[MatLike, Union[int, float]]: A tuple containing the world position and Euler angle.
+        Euler angle is in [0, 360].
     """
     rot_camera_to_world = rotation_matrix.T
     world_pos = np.matmul(-rotation_matrix.T, tvec)

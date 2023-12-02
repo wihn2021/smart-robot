@@ -17,6 +17,7 @@ class Channel:
         self.username = username
         self.password = password
         self.logger = self.logger_init()
+        self.request_count = [0] * 60
 
     def logger_init(self) -> logging.Logger:
         logger = logging.getLogger(__name__)
@@ -61,5 +62,6 @@ class Channel:
         ret, score_text = response.text.split()
         if ret == "Wrong":
             return None
+        self.request_count[tag_id] += 1
         return int(score_text)
     
