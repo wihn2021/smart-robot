@@ -168,3 +168,6 @@ class ActionControl:
 
     def turn_head_right(self):
         self.run_str("HeadTurn015")
+
+    def run_back(self):
+        self.run_str("Back2Run")

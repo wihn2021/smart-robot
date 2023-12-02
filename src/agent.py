@@ -39,11 +39,11 @@ class Agent:
     """
     def __init__(self) -> None:
         self.logger = self.logger_init()
-        self.ch = Channel("192.168.1.254", "team16", "stupidrobot")
+        # self.ch = Channel("192.168.1.254", "team16", "stupidrobot")
         self.action = ActionControl()
         self.classifier = Classifier("../overlay/enhanced.bit")
         self.detect = BotDetect()
-        self.my_flower = self.ch.initialize_team()
+        # self.my_flower = self.ch.initialize_team()
         self.position = None
         self.angle = None
         self.screen_record = [None] * 36
@@ -51,6 +51,7 @@ class Agent:
         self.score = 0
         self.destinations = [(205,227),(128,236),(125,66),(220,75)]
         self.destination_iterator = 0
+        self.observation_counter = 0
 
     def get_current_destination(self):
         return self.destinations[self.destination_iterator]
@@ -105,23 +106,25 @@ class Agent:
                 position_solutions.append(position)
                 angle_solutions.append(angle)
 
-                if tag.tag_id < 37:
-                    average_angle = mean(angle_solutions)
-                    thres = 30
-                    if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
-                        continue
-                    image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
-                    classify_result = self.classifier.wrap_classify(image_28x28)
-                    if classify_result == None:
-                        pass
-                    else:
-                        self.screen_record[tag.tag_id] = classify_result
-                        if classify_result != self.my_flower and (
-                            self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
-                            ):
-                            change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
-                            if change_result != None:
-                                self.score = change_result
+                # if tag.tag_id < 37:
+                #     average_angle = mean(angle_solutions)
+                #     thres = 30
+                #     if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
+                #         continue
+                #     if linalg.norm(tag_poses[tag.tag_id][0][:2] - self.position[:2]) > 70:
+                #         continue
+                #     image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
+                #     classify_result = self.classifier.wrap_classify(image_28x28)
+                #     if classify_result == None:
+                #         pass
+                #     else:
+                #         self.screen_record[tag.tag_id] = classify_result
+                #         if classify_result != self.my_flower and (
+                #             self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
+                #             ):
+                #             change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
+                #             if change_result != None:
+                #                 self.score = change_result
 
             average_position = mean(position_solutions, axis=0).flatten()
             average_angle = mean(angle_solutions)
@@ -129,13 +132,22 @@ class Agent:
             return len(tags), average_position, average_angle
 
     def action_frame(self):
+        self.observation_counter += 1
         try:
-            self.action.turn_head_left()
-            self.observe_single(90)
-            self.action.turn_head_right()
-            self.observe_single(-75)
+            if self.observation_counter % 4 == 0:
+                self.action.turn_head_left()
+                self.observe_single(90)
+                self.action.turn_head_right()
+                self.observe_single(-75)
+                self.action.turn_head_back()
+        except:
             self.action.turn_head_back()
+            self.action.run_back()
+            traceback.print_exc()
+            return
+        try:
             tag_num, position, angle = self.observe_single(0)
+            
             if tag_num == 0:
                 self.action.turn_head_left()
                 tag_num, position, angle = self.observe_single(90)
@@ -143,13 +155,17 @@ class Agent:
                 if tag_num == 0:
                     self.action.basic_turn(90)
                     return
+            self.position = position
+            self.angle = angle
         except:
-            print('observe_single ERROR')
+            self.action.turn_head_back()
+            self.action.basic_turn(-45)
             return
+        
         current_destination = self.get_current_destination()
         delta_x = current_destination[0] - position[0]
         delta_y = current_destination[1] - position[1]
-        while linalg.norm([delta_x, delta_y]) < 15:
+        while linalg.norm([delta_x, delta_y]) < 20:
             self.update_destination()
             current_destination = self.get_current_destination()
             delta_x = current_destination[0] - position[0]
