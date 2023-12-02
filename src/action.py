@@ -135,26 +135,18 @@ class ActionControl:
             shouldRotate (Union[int, float]): The angle to rotate.
         """
         self.logger.info(f"turn {shouldRotate}")
-        if shouldRotate >= 50:
-            # 左转
-            self.run_str("turn010L")
-            return
-        if shouldRotate >= 25:
+        if shouldRotate >= 40:
             self.run_str("turn005L")
             return
-        if shouldRotate >= 15:
+        if shouldRotate >= 20:
             self.run_str("turn003L")
             return
         if shouldRotate > 0:
             self.run_str("turn001L")
-        if shouldRotate <= -50:
-            # 右转
-            self.run_str("turn010R")
-            return
-        if shouldRotate <= -25:
+        if shouldRotate <= -40:
             self.run_str("turn005R")
             return
-        if shouldRotate <= -15:
+        if shouldRotate <= -20:
             self.run_str("turn003R")
             return
         if shouldRotate <= 0:
