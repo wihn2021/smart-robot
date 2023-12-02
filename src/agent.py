@@ -6,7 +6,7 @@ from classifier import Classifier
 from camera_algorithm import pnp_rodrigues, solve_position, cut_image
 from april import BotDetect
 from constants import tag_poses, obstacle_centers, screens, intrinsic, distortion
-from numpy import mean, ndarray
+from numpy import mean, ndarray, rad2deg, arctan2, linalg
 from typing import Tuple, Union
 import time
 class Agent:
@@ -48,6 +48,11 @@ class Agent:
         self.screen_record = [None] * 36
         self.game_start_time = time.time()
         self.score = 0
+        self.destinations = []
+        self.destination_iterator = 0
+
+    def get_current_destination(self):
+        return self.destinations[self.destination_iterator]
 
     def get_game_continue_time(self) -> float:
         """
@@ -112,11 +117,39 @@ class Agent:
 
             average_position = mean(position_solutions, axis=0).flatten()
             average_angle = mean(angle_solutions)
-
+            average_angle = (average_angle + bias) % 360 - 180
             return len(tags), average_position, average_angle
 
-    def rotate_to_position(self):
-        """
-        Rotates the agent to a specific position.
-        """
-        pass
+    def action_frame(self):
+        tag_num, position, angle = self.observe_single(0)
+        if tag_num == 0:
+            self.action.turn_head_left()
+            tag_num, position, angle = self.observe_single(90)
+            self.action.turn_head_back()
+            if tag_num == 0:
+                self.action.basic_turn(90)
+                return
+        current_destination = self.get_current_destination()
+        delta_x = current_destination[0] - position[0]
+        delta_y = current_destination[1] - position[1]
+        while linalg.norm([delta_x, delta_y]) < 15:
+            self.update_destination()
+            current_destination = self.get_current_destination()
+            delta_x = current_destination[0] - position[0]
+            delta_y = current_destination[1] - position[1]
+        should_rotate = rad2deg(arctan2(delta_y, delta_x)) - angle
+        should_rotate = should_rotate % 360 - 180
+        if abs(should_rotate) > 15:
+            self.action.basic_turn(should_rotate)
+        else:
+            self.action.basic_go_forward(linalg.norm([delta_x, delta_y]))
+    
+    def update_destination(self):
+        if self.destination_iterator == len(self.destinations) - 1:
+            self.destination_iterator = 0
+        else:
+            self.destination_iterator += 1
+
+    def main(self):
+        while 1:
+            self.action_frame()
