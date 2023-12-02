@@ -9,6 +9,7 @@ from constants import tag_poses, obstacle_centers, screens, tag_ori, intrinsic, 
 from numpy import mean, ndarray, rad2deg, arctan2, linalg
 from typing import Tuple, Union
 import time
+import traceback
 class Agent:
     """
     The Agent class represents a robot agent that interacts with the environment.
@@ -120,7 +121,8 @@ class Agent:
                                 change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
                                 if change_result != None:
                                     self.score = change_result
-                    except:
+                    except Exception as e:
+                        traceback.print_exc()
                         continue
 
             average_position = mean(position_solutions, axis=0).flatten()
@@ -141,6 +143,7 @@ class Agent:
             self.logger.info(f"{position} {angle}")
         except:
             self.action.basic_turn(-90)
+            traceback.print_exc()
             return
         current_destination = self.get_current_destination()
         delta_x = current_destination[0] - position[0]
