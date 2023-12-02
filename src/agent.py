@@ -103,7 +103,9 @@ class Agent:
                         pass
                     else:
                         self.screen_record[tag.tag_id] = classify_result
-                        if classify_result != self.my_flower and (self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480):
+                        if classify_result != self.my_flower and (
+                            self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
+                            ):
                             change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
                             if change_result != None:
                                 self.score = change_result
