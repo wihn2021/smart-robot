@@ -116,7 +116,8 @@ class ActionControl:
         self.logger.info(f"go {d}")
         steps = (d + 8) // 20
         if steps >= 8:
-            self.run_str('fastForward07')
+           # self.run_str('fastForward07')
+            self.run_str('fastForward04')
             return
         if 3 <= steps <= 7:
             self.run_str('fastForward04')
@@ -164,3 +165,6 @@ class ActionControl:
 
     def turn_head_back(self):
         self.run_str("HeadTurnMM")
+
+    def turn_head_right(self):
+        self.run_str("HeadTurn015")
