@@ -5,7 +5,7 @@ from map2 import load_tag_pos
 from classifier import Classifier
 from camera_algorithm import pnp_rodrigues, solve_position, cut_image
 from april import BotDetect
-from constants import tag_poses, obstacle_centers, screens, intrinsic, distortion
+from constants import tag_poses, obstacle_centers, screens, tag_ori, intrinsic, distortion
 from numpy import mean, ndarray
 from typing import Tuple, Union
 import time
@@ -96,7 +96,12 @@ class Agent:
                 position, angle = solve_position(rotation_matrix, tvec)
                 position_solutions.append(position)
                 angle_solutions.append(angle)
+
                 if tag.tag_id < 37:
+                    average_angle = mean(angle_solutions)
+                    thres = 30
+                    if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
+                        continue
                     image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
                     classify_result = self.classifier.wrap_classify(image_28x28)
                     if classify_result == None:

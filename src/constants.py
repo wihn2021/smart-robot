@@ -15,7 +15,7 @@ FLOWER_CLASSES = ['bailianhua',
  'yuanweihua',
  'zijinghua']
 
-tag_poses, obstacle_centers, screens = load_tag_pos()
+tag_poses, obstacle_centers, screens , tag_ori = load_tag_pos()
 
 intrinsic = np.array(([207.9138,0,315.9991],[0,206.5876,242.7096],[0,0,1]),dtype=np.double)
 
