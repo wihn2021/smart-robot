@@ -92,7 +92,7 @@ class Agent:
         image = self.action.head_capture()
         tags = self.detect.detect(image)
         if tags == None:
-            return 0
+            return 0, None, None
         else:
             position_solutions = []
             angle_solutions = []
@@ -107,18 +107,21 @@ class Agent:
                     thres = 30
                     if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
                         continue
-                    image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
-                    classify_result = self.classifier.wrap_classify(image_28x28)
-                    if classify_result == None:
-                        pass
-                    else:
-                        self.screen_record[tag.tag_id] = classify_result
-                        if classify_result != self.my_flower and (
-                            self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
-                            ):
-                            change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
-                            if change_result != None:
-                                self.score = change_result
+                    try:
+                        image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
+                        classify_result = self.classifier.wrap_classify(image_28x28)
+                        if classify_result == None:
+                            pass
+                        else:
+                            self.screen_record[tag.tag_id] = classify_result
+                            if classify_result != self.my_flower and (
+                                self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
+                                ):
+                                change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
+                                if change_result != None:
+                                    self.score = change_result
+                    except:
+                        continue
 
             average_position = mean(position_solutions, axis=0).flatten()
             average_angle = mean(angle_solutions)
@@ -126,14 +129,19 @@ class Agent:
             return len(tags), average_position, average_angle
 
     def action_frame(self):
-        tag_num, position, angle = self.observe_single(0)
-        if tag_num == 0:
-            self.action.turn_head_left()
-            tag_num, position, angle = self.observe_single(90)
-            self.action.turn_head_back()
+        try:
+            tag_num, position, angle = self.observe_single(0)
             if tag_num == 0:
-                self.action.basic_turn(90)
-                return
+                self.action.turn_head_left()
+                tag_num, position, angle = self.observe_single(90)
+                self.action.turn_head_back()
+                if tag_num == 0:
+                    self.action.basic_turn(90)
+                    return
+            self.logger.info(f"{position} {angle}")
+        except:
+            self.action.basic_turn(-90)
+            return
         current_destination = self.get_current_destination()
         delta_x = current_destination[0] - position[0]
         delta_y = current_destination[1] - position[1]
