@@ -1,8 +1,8 @@
 # Project for Intelligent Robots Design and Implementation of EE, Tsinghua University
 
-<img src="https://avatars.githubusercontent.com/u/88038740?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="rounded-1">[@wihn2021](https://github.com/wihn2021)
-<img src="https://avatars.githubusercontent.com/u/88665344?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="rounded-1">[@Spade14SS](https://github.com/Spade14SS) 
-<img src="https://avatars.githubusercontent.com/u/150015579?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="rounded-1">[@Men-yuan](https://github.com/Men-yuan)
+<img src="https://avatars.githubusercontent.com/u/88038740?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="avatar mr-2 d-none d-md-block avatar-user">[@wihn2021](https://github.com/wihn2021)
+<img src="https://avatars.githubusercontent.com/u/88665344?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="avatar mr-2 d-none d-md-block avatar-user">[@Spade14SS](https://github.com/Spade14SS) 
+<img src="https://avatars.githubusercontent.com/u/150015579?s=64&v=4" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%;" class="avatar mr-2 d-none d-md-block avatar-user">[@Men-yuan](https://github.com/Men-yuan)
 
 -----
 
