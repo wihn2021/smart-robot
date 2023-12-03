@@ -99,32 +99,46 @@ class Agent:
             position_solutions = []
             angle_solutions = []
             for tag in tags:
-                rotation_matrix, tvec = pnp_rodrigues(tag_poses[tag.tag_id], tag.corners, intrinsic, distortion)
                 
+                rotation_matrix, tvec = pnp_rodrigues(tag_poses[tag.tag_id], tag.corners, intrinsic, distortion)
 
                 position, angle = solve_position(rotation_matrix, tvec)
+                
+                if position[2] < 10:
+                    self.logger.error("position error")
+                    continue
+
                 position_solutions.append(position)
                 angle_solutions.append(angle)
 
-                # if tag.tag_id < 37:
-                #     average_angle = mean(angle_solutions)
-                #     thres = 30
-                #     if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
-                #         continue
-                #     if linalg.norm(tag_poses[tag.tag_id][0][:2] - self.position[:2]) > 70:
-                #         continue
-                #     image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
-                #     classify_result = self.classifier.wrap_classify(image_28x28)
-                #     if classify_result == None:
-                #         pass
-                #     else:
-                #         self.screen_record[tag.tag_id] = classify_result
-                #         if classify_result != self.my_flower and (
-                #             self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
-                #             ):
-                #             change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
-                #             if change_result != None:
-                #                 self.score = change_result
+                if tag.corners[3,0] < 100 or tag.corners[3,1] > 400:
+                    self.logger.error("image outside of the pixture!")
+                    continue
+
+
+                if tag.tag_id < 37:
+                    try:
+                        average_angle = mean(angle_solutions)
+                    except:
+                        average_angle = angle
+                    thres = 30
+                    if abs(average_angle - tag_ori[tag.tag_id]) % 180 < (90 + thres) and  abs(average_angle - tag_ori[tag.tag_id]) % 180 > (90 - thres) :
+                        continue
+                    if linalg.norm(tag_poses[tag.tag_id][0][:2] - self.position[:2]) > 70:
+                        continue
+                    image_28x28 = cut_image(image, screens[tag.tag_id], rotation_matrix, tvec, intrinsic, distortion)
+                    classify_result = self.classifier.wrap_classify(image_28x28)
+                    if classify_result == None:
+                        pass
+                    else:
+                        self.screen_record[tag.tag_id] = classify_result
+                        self.logger.info(f"recognize {tag.tag_id} as {classify_result}")
+                        # if classify_result != self.my_flower and (
+                        #     self.ch.request_count[tag.tag_id] < 4 or self.get_game_continue_time() > 480
+                        #     ):
+                        #     change_result = self.ch.change_flower(tag.tag_id, classify_result, self.my_flower)
+                        #     if change_result != None:
+                        #         self.score = change_result
 
             average_position = mean(position_solutions, axis=0).flatten()
             average_angle = mean(angle_solutions)
@@ -183,6 +197,7 @@ class Agent:
         else:
             self.destination_iterator += 1
 
-    def main(self):
+    def main(self, start_point):
+        self.destination_iterator = start_point
         while 1:
             self.action_frame()
