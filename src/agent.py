@@ -9,6 +9,7 @@ from constants import tag_poses, obstacle_centers, screens, tag_ori, intrinsic, 
 from numpy import mean, ndarray, rad2deg, arctan2, linalg
 from typing import Tuple, Union
 import time
+import traceback
 class Agent:
     """
     The Agent class represents a robot agent that interacts with the environment.
